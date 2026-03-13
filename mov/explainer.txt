@@ -1,0 +1,6 @@
+Hello!
+If you're visiting, this is because you were probably wondering where you can find the use of the TMDB API key.
+
+It is a purely self-hosted application and has 0 public facing ports.
+
+Contact me at matfuller703 at gmail.com if you have any questions.
