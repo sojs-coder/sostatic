@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>South OC Surf Tracker</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --accent: #38bdf8;
+            --good: #4ade80;
+            --fair: #facc15;
+            --poor: #f87171;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            margin: 0;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .tide-box {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        .tide-box h3 { margin: 0 0 10px 0; font-size: 1.1rem; color: #e0f2fe; }
+        .tide-status { font-size: 1.5rem; font-weight: bold; margin: 0; }
+        
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            width: 50px;
+            flex-shrink: 0;
+        }
+        .beach-info {
+            flex-grow: 1;
+            padding-right: 15px;
+        }
+        .title { margin: 0; font-size: 1.25rem; }
+        .desc { font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; }
+        .metrics { 
+            font-size: 0.9rem; 
+            color: #94a3b8; 
+            margin-top: 8px; 
+            display: flex;
+            gap: 15px;
+        }
+        .score-box {
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .score { font-size: 1.8rem; font-weight: bold; }
+        .score.good { color: var(--good); }
+        .score.fair { color: var(--fair); }
+        .score.poor { color: var(--poor); }
+        .score-label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;}
+        
+        @media (max-width: 600px) {
+            .card { flex-direction: column; align-items: flex-start; position: relative; }
+            .rank { position: absolute; top: 16px; right: 20px; text-align: right; }
+            .score-box { margin-top: 15px; text-align: left; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌊 South OC Surf Ranked</h1>
+        <div class="tide-box" id="tideBox">
+            <h3>Regional Tide (South OC)</h3>
+            <div class="tide-status" id="tideStatus">Loading...</div>
+        </div>
+        <div id="surfList">Fetching ocean data...</div>
+    </div>
+
+    <script>
+        // South OC Beach Data with Rip/Shorebreak risk profiles
+        const beaches = [
+            { name: "Lower Trestles", lat: 33.385, lng: -117.594, desc: "World-class A-frames, highly organized", ripRisk: false },
+            { name: "T-Street", lat: 33.418, lng: -117.620, desc: "Consistent beach/reef break", ripRisk: false },
+            { name: "Doheny State Beach", lat: 33.461, lng: -117.687, desc: "Mellow longboard waves, highly protected", ripRisk: false },
+            { name: "Strands", lat: 33.473, lng: -117.716, desc: "Fun beach break, usually manageable", ripRisk: false },
+            { name: "Salt Creek Beach", lat: 33.477, lng: -117.722, desc: "Punchy lefts and rights", ripRisk: false },
+            { name: "1000 Steps", lat: 33.497, lng: -117.740, desc: "Steep drop, heavy tubes", ripRisk: true },
+            { name: "Aliso Beach", lat: 33.511, lng: -117.752, desc: "Skimboard mecca, notorious shorebreak", ripRisk: true },
+            { name: "Victoria Beach", lat: 33.519, lng: -117.763, desc: "Heavy skim/surf shorebreak", ripRisk: true },
+            { name: "Main Beach", lat: 33.542, lng: -117.785, desc: "Usually closeouts, blackballed in summer", ripRisk: false },
+            { name: "Shaws Cove", lat: 33.544, lng: -117.800, desc: "Mostly a dive spot, breaks on large swells", ripRisk: false },
+            { name: "Crescent Bay", lat: 33.545, lng: -117.802, desc: "Bodysurf/skim, heavy on south swells", ripRisk: true },
+            { name: "Crystal Cove", lat: 33.576, lng: -117.840, desc: "Mellow reef/beach break", ripRisk: false }
+        ];
+
+        // 1. Fetch NOAA Tide Data
+        async function fetchTides() {
+            try {
+                // Station 9410660 is Los Angeles (provides accurate baseline for Orange County)
+                const res = await fetch('https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station=9410660&product=predictions&datum=mllw&time_zone=lst_ldt&interval=h&units=english&format=json');
+                const data = await res.json();
+                
+                const now = new Date();
+                const currentHourStr = now.getFullYear() + "-" + 
+                    String(now.getMonth()+1).padStart(2, '0') + "-" + 
+                    String(now.getDate()).padStart(2, '0') + " " + 
+                    String(now.getHours()).padStart(2, '0') + ":00";
+                    
+                let currentLevel = "N/A";
+                let trend = "";
+                
+                for (let i = 0; i < data.predictions.length; i++) {
+                    if (data.predictions[i].t === currentHourStr) {
+                        currentLevel = parseFloat(data.predictions[i].v).toFixed(1);
+                        const nextNode = data.predictions[i+1];
+                        const nextLevel = nextNode ? parseFloat(nextNode.v) : currentLevel;
+                        trend = nextLevel > currentLevel ? "Rising 📈" : "Falling 📉";
+                        break;
+                    }
+                }
+                document.getElementById('tideStatus').innerText = `${currentLevel} ft | ${trend}`;
+            } catch(err) {
+                document.getElementById('tideStatus').innerText = "Tide data unavailable";
+            }
+        }
+
+        // 2. Fetch Open-Meteo Surf Data
+        function getDirection(degree) {
+            if (degree == null) return 'N/A';
+            const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+            return dirs[Math.round(((degree %= 360) < 0 ? degree + 360 : degree) / 22.5) % 16];
+        }
+
+        async function fetchSurf() {
+            const lats = beaches.map(b => b.lat).join(',');
+            const lngs = beaches.map(b => b.lng).join(',');
+            
+            try {
+                const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${lats}&longitude=${lngs}&current=wave_height,wave_period,wave_direction&timezone=America/Los_Angeles`;
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                const results = Array.isArray(data) ? data : [data];
+                
+                beaches.forEach((beach, i) => {
+                    const current = results[i].current;
+                    if(!current) { beach.score = 0; return; }
+                    
+                    const heightFt = current.wave_height * 3.28084;
+                    const period = current.wave_period;
+                    
+                    // Base Score: Rewards higher waves and longer periods
+                    let rawScore = (heightFt * period) / 10;
+                    
+                    // Shorebreak / Rip Current Logic
+                    if (beach.ripRisk && heightFt > 3.5) {
+                        rawScore -= 2.5; // Penalize heavy shorebreaks when surf gets big
+                        beach.desc += " <span style='color: #f87171;'>⚠️ Heavy Rip/Shorebreak Risk</span>";
+                    }
+
+                    beach.score = Math.min(Math.max(rawScore, 0), 10);
+                    beach.height = heightFt.toFixed(1);
+                    beach.period = Math.round(period);
+                    beach.dir = getDirection(current.wave_direction);
+                });
+                
+                // Sort highest score first
+                beaches.sort((a, b) => b.score - a.score);
+                renderBeaches();
+                
+            } catch(err) {
+                document.getElementById('surfList').innerHTML = "<p>Error loading surf data from weather models.</p>";
+            }
+        }
+
+        // 3. Render UI
+        function renderBeaches() {
+            const list = document.getElementById('surfList');
+            list.innerHTML = '';
+            
+            beaches.forEach((b, index) => {
+                const scoreClass = b.score >= 6.5 ? 'good' : (b.score >= 4 ? 'fair' : 'poor');
+                const displayScore = b.score.toFixed(1);
+                
+                list.innerHTML += `
+                    <div class="card">
+                        <div class="rank">#${index + 1}</div>
+                        <div class="beach-info">
+                            <h3 class="title">${b.name}</h3>
+                            <div class="desc">${b.desc}</div>
+                            <div class="metrics">
+                                <span>🌊 ${b.height} ft</span>
+                                <span>⏱️ ${b.period}s</span>
+                                <span>🧭 ${b.dir} swell</span>
+                            </div>
+                        </div>
+                        <div class="score-box">
+                            <div class="score ${scoreClass}">${displayScore}</div>
+                            <div class="score-label">Score</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Initialize
+        fetchTides();
+        fetchSurf();
+    </script>
+</body>
+</html>
