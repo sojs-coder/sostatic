@@ -163,7 +163,7 @@
   .protocol-chain { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
   .proto-node {
     background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 2px; padding: 14px 20px;
+    border-radius: 2px; padding: 14px 20px; margin: 5px;
   }
   .proto-node-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
   .proto-node-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--mid); }
@@ -406,7 +406,7 @@
       <!-- Three.js box render -->
       <div class="device-render fade-up">
         <canvas id="ghost-canvas" style="width:100%;border-radius:4px;cursor:grab;display:block;margin:0 auto;touch-action:none;"></canvas>
-        <p style="text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);margin-top:12px;letter-spacing:0.06em;">DRAG TO ROTATE</p>
+        <p style="text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);margin-top:12px;letter-spacing:0.06em;" aria-label="Drag vertically to slide, drag horizontally to rotate">DRAG ↕ TO SLIDE · DRAG ↔ TO ROTATE</p>
       </div>
 
       <!-- TEXT -->
@@ -848,9 +848,12 @@
     // ── Dimensions ──
     // Phone-like slab: ~iPhone proportions, thin depth
     // Width : Height : Depth  ≈  1 : 2.1 : 0.09  (very flat)
-    const gW = 1.15, gH = 2.42, gD = 0.13;   // Ghost device
-    const pW = 1.18, pH = 2.48, pD = 0.09;   // iPhone (slightly larger, sits behind)
+    const pW = 1.18, pH = 2.48, pD = 0.09;   // iPhone
+    const gW = 1.15, gH = pH / 2, gD = 0.13; // Ghost device — half the phone height
     const cornerR = 0.22;  // rounded corner radius for both
+    // ~1 inch gap between phone front face and Ghost back face
+    // iPhone ~5.78 in tall = 2.48 units → 1 in ≈ 0.43 units
+    const GAP_Z = 0.43;
 
     // Helper: rounded-rect shape
     function roundedRectShape(w, h, r) {
@@ -889,10 +892,10 @@
       roughness: 0.15,
       metalness: 0.6,
       transparent: true,
-      opacity: 0.88,
+      opacity: 0.95,
     });
     const phone = new THREE.Mesh(phoneGeo, phoneMat);
-    phone.position.z = -(pD / 2 + gD / 2 + 0.01);  // sit just behind Ghost device
+    phone.position.z = -(gD / 2 + GAP_Z + pD / 2);  // ~1 inch gap behind Ghost device
     phone.castShadow = true;
     phone.receiveShadow = true;
 
@@ -907,7 +910,7 @@
       opacity: 0.6,
     });
     const screen = new THREE.Mesh(screenGeo, screenMat);
-    screen.position.z = -(pD / 2 + gD / 2 + 0.01) + pD / 2 + 0.001;
+    screen.position.z = phone.position.z + pD / 2 + 0.001;
     screen.rotation.z = 0;
 
     // Dynamic Island pill on phone
@@ -989,19 +992,19 @@
     wm.position.set(0, 0, gD / 2 + 0.002);
 
     // ── Attachment clips — subtle raised ridges on back of Ghost (grip onto phone) ──
-    function makeClip(yPos) {
-      const g = new THREE.Group();
-      const clipGeo = new THREE.BoxGeometry(gW + 0.06, 0.06, 0.05);
-      const clipMat = new THREE.MeshStandardMaterial({ color: 0xd5d0c8, roughness: 0.6, metalness: 0.04 });
-      const c = new THREE.Mesh(clipGeo, clipMat);
-      g.add(c);
-      const edgeGeo2 = new THREE.EdgesGeometry(clipGeo);
-      g.add(new THREE.LineSegments(edgeGeo2, new THREE.LineBasicMaterial({ color: 0xb8b2aa })));
-      g.position.set(0, yPos, -gD / 2 - 0.025);
-      return g;
-    }
-    const clipTop = makeClip(gH / 2 - 0.28);
-    const clipBot = makeClip(-gH / 2 + 0.28);
+    // function makeClip(yPos) {
+    //   const g = new THREE.Group();
+    //   const clipGeo = new THREE.BoxGeometry(gW + 0.06, 0.06, 0.05);
+    //   const clipMat = new THREE.MeshStandardMaterial({ color: 0xd5d0c8, roughness: 0.6, metalness: 0.04 });
+    //   const c = new THREE.Mesh(clipGeo, clipMat);
+    //   g.add(c);
+    //   const edgeGeo2 = new THREE.EdgesGeometry(clipGeo);
+    //   g.add(new THREE.LineSegments(edgeGeo2, new THREE.LineBasicMaterial({ color: 0xb8b2aa })));
+    //   g.position.set(0, yPos, -gD / 2 - 0.025);
+    //   return g;
+    // }
+    // const clipTop = makeClip(gH / 2 - 0.28);
+    // const clipBot = makeClip(-gH / 2 + 0.28);
 
     // ── Ground shadow ──
     const groundGeo = new THREE.PlaneGeometry(12, 12);
@@ -1013,21 +1016,30 @@
     scene.add(ground);
 
     // ── Assemble into pivot for rotation ──
+    // Ghost components live in their own sub-group so they can slide vertically
+    const ghostGroup = new THREE.Group();
+    const ghostYMin = -(pH / 2 - gH / 2);   // flush with phone bottom
+    const ghostYMax =  (pH / 2 - gH / 2);   // flush with phone top
+    let ghostY = ghostYMin;                   // start at bottom half
+    ghostGroup.position.y = ghostY;
+    [ghost, led, ledLight, btn, usbPort, wm].forEach(o => ghostGroup.add(o));
+
     const pivot = new THREE.Group();
-    [phone, screen, di, ghost, led, ledLight, btn, usbPort, wm, clipTop, clipBot].forEach(o => pivot.add(o));
+    [phone, screen, di, ghostGroup].forEach(o => pivot.add(o));
     scene.add(pivot);
 
-    // ── Orbit controls (manual) ──
+    // ── Controls: horizontal drag → rotate Y · vertical drag → slide Ghost ──
     let isDragging = false, prevX = 0, prevY = 0;
-    let rotX = 0.18, rotY = 0.35;
+    let rotY = 0.35;
 
     canvas.addEventListener('mousedown', e => { isDragging = true; prevX = e.clientX; prevY = e.clientY; canvas.style.cursor = 'grabbing'; });
     window.addEventListener('mouseup', () => { isDragging = false; canvas.style.cursor = 'grab'; });
     window.addEventListener('mousemove', e => {
       if (!isDragging) return;
       rotY += (e.clientX - prevX) * 0.011;
-      rotX += (e.clientY - prevY) * 0.011;
-      rotX = Math.max(-0.7, Math.min(0.75, rotX));
+      const dy = (e.clientY - prevY) * 0.008;
+      ghostY = Math.max(ghostYMin, Math.min(ghostYMax, ghostY - dy));
+      ghostGroup.position.y = ghostY;
       prevX = e.clientX; prevY = e.clientY;
     });
     canvas.addEventListener('touchstart', e => {
@@ -1039,8 +1051,9 @@
       if (!isDragging) return;
       e.preventDefault();
       rotY += (e.touches[0].clientX - prevX) * 0.015;
-      rotX += (e.touches[0].clientY - prevY) * 0.015;
-      rotX = Math.max(-0.7, Math.min(0.75, rotX));
+      const dy = (e.touches[0].clientY - prevY) * 0.012;
+      ghostY = Math.max(ghostYMin, Math.min(ghostYMax, ghostY - dy));
+      ghostGroup.position.y = ghostY;
       prevX = e.touches[0].clientX; prevY = e.touches[0].clientY;
     }, { passive: false });
 
@@ -1050,7 +1063,7 @@
       requestAnimationFrame(animate);
       t += 0.025;
       if (!isDragging) rotY += 0.003;
-      pivot.rotation.x = rotX;
+      pivot.rotation.x = 0.18;
       pivot.rotation.y = rotY;
       const pulse = 0.65 + 0.55 * Math.sin(t);
       ledMat.emissiveIntensity = pulse;
