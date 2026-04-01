@@ -163,7 +163,7 @@
   .protocol-chain { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
   .proto-node {
     background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 2px; padding: 14px 20px;
+    border-radius: 2px; padding: 14px 20px; margin: 5px;
   }
   .proto-node-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
   .proto-node-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--mid); }
@@ -892,7 +892,7 @@
       roughness: 0.15,
       metalness: 0.6,
       transparent: true,
-      opacity: 0.88,
+      opacity: 0.95,
     });
     const phone = new THREE.Mesh(phoneGeo, phoneMat);
     phone.position.z = -(gD / 2 + GAP_Z + pD / 2);  // ~1 inch gap behind Ghost device
@@ -992,19 +992,19 @@
     wm.position.set(0, 0, gD / 2 + 0.002);
 
     // ── Attachment clips — subtle raised ridges on back of Ghost (grip onto phone) ──
-    function makeClip(yPos) {
-      const g = new THREE.Group();
-      const clipGeo = new THREE.BoxGeometry(gW + 0.06, 0.06, 0.05);
-      const clipMat = new THREE.MeshStandardMaterial({ color: 0xd5d0c8, roughness: 0.6, metalness: 0.04 });
-      const c = new THREE.Mesh(clipGeo, clipMat);
-      g.add(c);
-      const edgeGeo2 = new THREE.EdgesGeometry(clipGeo);
-      g.add(new THREE.LineSegments(edgeGeo2, new THREE.LineBasicMaterial({ color: 0xb8b2aa })));
-      g.position.set(0, yPos, -gD / 2 - 0.025);
-      return g;
-    }
-    const clipTop = makeClip(gH / 2 - 0.28);
-    const clipBot = makeClip(-gH / 2 + 0.28);
+    // function makeClip(yPos) {
+    //   const g = new THREE.Group();
+    //   const clipGeo = new THREE.BoxGeometry(gW + 0.06, 0.06, 0.05);
+    //   const clipMat = new THREE.MeshStandardMaterial({ color: 0xd5d0c8, roughness: 0.6, metalness: 0.04 });
+    //   const c = new THREE.Mesh(clipGeo, clipMat);
+    //   g.add(c);
+    //   const edgeGeo2 = new THREE.EdgesGeometry(clipGeo);
+    //   g.add(new THREE.LineSegments(edgeGeo2, new THREE.LineBasicMaterial({ color: 0xb8b2aa })));
+    //   g.position.set(0, yPos, -gD / 2 - 0.025);
+    //   return g;
+    // }
+    // const clipTop = makeClip(gH / 2 - 0.28);
+    // const clipBot = makeClip(-gH / 2 + 0.28);
 
     // ── Ground shadow ──
     const groundGeo = new THREE.PlaneGeometry(12, 12);
@@ -1022,7 +1022,7 @@
     const ghostYMax =  (pH / 2 - gH / 2);   // flush with phone top
     let ghostY = ghostYMin;                   // start at bottom half
     ghostGroup.position.y = ghostY;
-    [ghost, led, ledLight, btn, usbPort, wm, clipTop, clipBot].forEach(o => ghostGroup.add(o));
+    [ghost, led, ledLight, btn, usbPort, wm].forEach(o => ghostGroup.add(o));
 
     const pivot = new THREE.Group();
     [phone, screen, di, ghostGroup].forEach(o => pivot.add(o));
