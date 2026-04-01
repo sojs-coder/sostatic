@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -377,7 +376,7 @@
   <div class="container">
     <div class="hero-eyebrow">Location Privacy Hardware</div>
     <h1>System-wide GPS<br>privacy, <em>no jailbreak</em></h1>
-    <p class="hero-sub">A pocket-sized USB device that overrides an iPhone's location at the OS level — indistinguishable from real GPS to every app on the phone.</p>
+    <p class="hero-sub">A phone-sized slab that clips to the back of an iPhone and overrides its location at the OS level — indistinguishable from real GPS to every app on the phone.</p>
     <div class="hero-stats fade-up">
       <div class="hero-stat">
         <div class="hero-stat-num">&lt;15s</div>
@@ -413,18 +412,19 @@
       <!-- TEXT -->
       <div class="device-text fade-up">
         <div class="section-label">Hardware v2.0</div>
-        <h2>2″ × 2″ × 3″<br>pocketable form factor</h2>
-        <p>A sealed ABS box with two USB-C ports — one for charging, one for the phone. Throw it in a bag, connect the cable, and every location-sharing app on the phone sees a pre-recorded cover route.</p>
+        <h2>Phone-sized.<br>Attaches to the back.</h2>
+        <p>Ghost is the same footprint as an iPhone — it sits flush against the back and clips on in one motion. Two USB-C ports: one facing down for the phone, one on the edge for charging. The LED and button are the only visible tell.</p>
 
         <div class="spec-list">
           <div class="spec-row"><span class="spec-key">Compute</span><span class="spec-val">Raspberry Pi Zero 2W · 4× ARM A53 · 512 MB</span></div>
           <div class="spec-row"><span class="spec-key">Storage</span><span class="spec-val">8 GB microSD · read-only root · RW /data partition</span></div>
           <div class="spec-row"><span class="spec-key">Battery (compact)</span><span class="spec-val">2,000 mAh LiPo · ~8 hr runtime</span></div>
           <div class="spec-row"><span class="spec-key">Battery (extended)</span><span class="spec-val">5,000 mAh LiPo · ~20 hr runtime</span></div>
-          <div class="spec-row"><span class="spec-key">Phone connection</span><span class="spec-val">USB-C to USB-C or Lightning · USB 2.0 OTG</span></div>
+          <div class="spec-row"><span class="spec-key">Form factor</span><span class="spec-val">iPhone-matched slab · clips to rear · 7mm thin</span></div>
+          <div class="spec-row"><span class="spec-key">Phone connection</span><span class="spec-val">USB-C (bottom edge → phone) · USB-C (side edge → charger)</span></div>
           <div class="spec-row"><span class="spec-key">Indicators</span><span class="spec-val">1× RGB LED · 1× tactile button</span></div>
           <div class="spec-row"><span class="spec-key">iOS compatibility</span><span class="spec-val">iOS 16.0 → 18.x (current)</span></div>
-          <div class="spec-row"><span class="spec-key">Enclosure</span><span class="spec-val">Injection-molded ABS · no exposed PCB</span></div>
+          <div class="spec-row"><span class="spec-key">Enclosure</span><span class="spec-val">Injection-molded ABS · flush-back clip attachment</span></div>
         </div>
       </div>
 
@@ -441,23 +441,23 @@
     <div class="steps fade-up">
       <div class="step">
         <span class="step-num">01</span>
-        <h3>USB detection</h3>
-        <p>The device connects to the iPhone over USB-C. <code style="font-family:'DM Mono',monospace;font-size:12px;">usbmuxd</code> detects the phone and authenticates with the stored pairing record — no re-prompt after initial setup.</p>
+        <h3>One-time setup</h3>
+        <p>The user enables Developer Mode once (Settings → Privacy &amp; Security → Developer Mode) and taps <em>Trust</em> on first USB connect. Both settings persist across reboots and iOS updates — no repeat prompts.</p>
       </div>
       <div class="step">
         <span class="step-num">02</span>
-        <h3>DVT tunnel</h3>
-        <p>The <code style="font-family:'DM Mono',monospace;font-size:12px;">ghostd</code> daemon opens an encrypted RemoteXPC/QUIC tunnel to iOS's developer services port via <code style="font-family:'DM Mono',monospace;font-size:12px;">pymobiledevice3</code> — the same protocol Xcode uses.</p>
+        <h3>USB detection</h3>
+        <p>On each subsequent connect, <code style="font-family:'DM Mono',monospace;font-size:12px;">usbmuxd</code> detects the phone and authenticates with the stored pairing record automatically. Session starts in under 15 seconds.</p>
       </div>
       <div class="step">
         <span class="step-num">03</span>
-        <h3>Location injection</h3>
-        <p>The DVT <code style="font-family:'DM Mono',monospace;font-size:12px;">simulate-location</code> service feeds coordinates directly into iOS's <code style="font-family:'DM Mono',monospace;font-size:12px;">locationd</code> at 1 Hz. Every app reading <code style="font-family:'DM Mono',monospace;font-size:12px;">CLLocation</code> sees the cover route.</p>
+        <h3>DVT tunnel</h3>
+        <p>The <code style="font-family:'DM Mono',monospace;font-size:12px;">ghostd</code> daemon opens an encrypted RemoteXPC/QUIC tunnel to iOS's developer services via <code style="font-family:'DM Mono',monospace;font-size:12px;">pymobiledevice3</code> — the same protocol Xcode uses. iOS version is auto-detected; iOS 16–18.x all supported.</p>
       </div>
       <div class="step">
         <span class="step-num">04</span>
-        <h3>Believability layer</h3>
-        <p>Gaussian position jitter (σ=1.5m), variable accuracy values, and smooth altitude variation make the injected trace statistically indistinguishable from real GPS output.</p>
+        <h3>Location injection</h3>
+        <p>DVT <code style="font-family:'DM Mono',monospace;font-size:12px;">simulate-location</code> feeds coordinates into <code style="font-family:'DM Mono',monospace;font-size:12px;">locationd</code> at 1 Hz with Gaussian jitter (σ=1.5m), variable accuracy, and smooth altitude variation — statistically indistinguishable from real GPS.</p>
       </div>
     </div>
 
@@ -494,7 +494,7 @@
           <div class="proto-node-sub">Find My · Life360 · Snapchat</div>
         </div>
       </div>
-      <div class="proto-note">No jailbreak · No MFi certification · No root · Identical to Xcode + iAnyGo mechanism</div>
+      <div class="proto-note">No jailbreak · No MFi certification · No root · Identical to Xcode + iAnyGo mechanism · iOS version auto-detected (16–18.x)</div>
     </div>
 
   </div>
@@ -644,7 +644,7 @@
       <div class="legal-card">
         <div class="legal-card-status status-pending"><span class="status-dot"></span>Review Risk — Ongoing</div>
         <h3>App Store Guidelines</h3>
-        <p>App does not request <code style="font-family:'DM Mono',monospace;font-size:12px;">Always</code> location permission; the injection occurs on the hardware, not the app. Compliance with Guideline 5.4 (VPN &amp; DNS) and 4.3 (Spam) must be maintained. Legal review of app description framing recommended before first submission.</p>
+        <p>App requests no <code style="font-family:'DM Mono',monospace;font-size:12px;">Always</code> location permission; injection occurs entirely on the hardware. The app itself is a control surface — the core session feature is not testable by Apple without physical hardware, which must be declared in review notes. Compliance with Guidelines 5.4 (VPN &amp; DNS) and 2.1 (App Completeness) must be maintained. Legal review of app description framing recommended before first submission. Age rating: 17+.</p>
       </div>
 
       <div class="legal-card">
@@ -717,6 +717,8 @@
         <span class="tech-tag">BackgroundTasks</span>
         <span class="tech-tag">Keychain</span>
         <span class="tech-tag">No location perm</span>
+        <span class="tech-tag">Stealth mode UI</span>
+        <span class="tech-tag">Session runs on device</span>
       </div>
       <div class="tech-col">
         <h3>Backend</h3>
@@ -745,7 +747,8 @@
           <li>Pi Zero 2W carrier PCB designed</li>
           <li>ghostd daemon — iOS 16–18 support</li>
           <li>iOS companion app (session control)</li>
-          <li>10 curated cover routes at launch</li>
+          <li>20 curated routes at launch (5 cities)</li>
+          <li>Cities: Chicago, New York, LA, London, Toronto</li>
           <li>FCC Part 15B certification</li>
           <li>Route transfer over USB (AFC)</li>
           <li>Compact + Extended battery SKUs</li>
@@ -761,6 +764,7 @@
           <li>Route marketplace (Pro tier)</li>
           <li>OTA firmware update flow</li>
           <li>DNS privacy mode (signed profile)</li>
+          <li>Stealth mode (decoy UI + Face ID gate)</li>
           <li>VoiceOver / accessibility</li>
         </ul>
       </div>
@@ -783,16 +787,15 @@
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">Ghost</div>
-  <div class="footer-note">Confidential · Investor Preview · v2.0 · 2026-03-24</div>
+  <div class="footer-note">Confidential · Investor Preview · v2.0 · 2026-03-31</div>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-  // ─── Three.js Ghost Device render ───
+  // ─── Three.js Ghost Device render — phone-form-factor back attachment ───
   (function() {
     const canvas = document.getElementById('ghost-canvas');
 
-    // Size canvas to its container width, square aspect
     function getSize() {
       return Math.min(canvas.parentElement.clientWidth, 420);
     }
@@ -802,192 +805,256 @@
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-    camera.position.set(2.8, 2.2, 3.8);
-    camera.lookAt(0, 0.1, 0);
-
+    // Taller aspect ratio to suit vertical phone form factor
+    const ASPECT = 0.85;
     function resize() {
-      const s = getSize();
-      canvas.style.height = s + 'px';
-      renderer.setSize(s, s, false);
+      const w = getSize();
+      const h = Math.round(w / ASPECT);
+      canvas.style.height = h + 'px';
+      renderer.setSize(w, h, false);
+      camera.aspect = ASPECT;
+      camera.updateProjectionMatrix();
     }
-    resize();
 
-    // Resize when container changes
-    if (window.ResizeObserver) {
-      new ResizeObserver(resize).observe(canvas.parentElement);
-    }
+    const camera = new THREE.PerspectiveCamera(36, ASPECT, 0.1, 100);
+    camera.position.set(0, 0.3, 5.5);
+    camera.lookAt(0, 0, 0);
+
+    resize();
+    if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas.parentElement);
     window.addEventListener('resize', resize);
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf7f6f4);
 
-    // Lights
-    const ambient = new THREE.AmbientLight(0xffffff, 0.55);
-    scene.add(ambient);
+    // ── Lighting ──
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
-    const key = new THREE.DirectionalLight(0xffffff, 0.9);
-    key.position.set(4, 6, 4);
+    const key = new THREE.DirectionalLight(0xffffff, 1.0);
+    key.position.set(3, 5, 5);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
-    key.shadow.camera.near = 0.5;
-    key.shadow.camera.far = 20;
-    key.shadow.camera.left = -3;
-    key.shadow.camera.right = 3;
-    key.shadow.camera.top = 3;
-    key.shadow.camera.bottom = -3;
+    Object.assign(key.shadow.camera, { left: -4, right: 4, top: 5, bottom: -5, near: 0.5, far: 25 });
     scene.add(key);
 
-    const fill = new THREE.DirectionalLight(0xe8e4ff, 0.3);
-    fill.position.set(-3, 2, -2);
+    const fill = new THREE.DirectionalLight(0xdde8ff, 0.35);
+    fill.position.set(-4, 2, 1);
     scene.add(fill);
 
-    const rim = new THREE.DirectionalLight(0xfff8f0, 0.25);
-    rim.position.set(0, -2, -4);
-    scene.add(rim);
+    const back = new THREE.DirectionalLight(0xfff4e0, 0.2);
+    back.position.set(0, -3, -4);
+    scene.add(back);
 
-    // ── Body: 2" × 2" × 3" scaled to ~1 × 1 × 1.5 units ──
-    const bW = 1.0, bH = 1.5, bD = 1.0;
-    const bodyGeo = new THREE.BoxGeometry(bW, bH, bD, 1, 1, 1);
-    const bodyMat = new THREE.MeshStandardMaterial({
-      color: 0xf0ece6,
-      roughness: 0.55,
-      metalness: 0.02,
-    });
-    const body = new THREE.Mesh(bodyGeo, bodyMat);
-    body.castShadow = true;
-    body.receiveShadow = true;
-    scene.add(body);
+    // ── Dimensions ──
+    // Phone-like slab: ~iPhone proportions, thin depth
+    // Width : Height : Depth  ≈  1 : 2.1 : 0.09  (very flat)
+    const gW = 1.15, gH = 2.42, gD = 0.13;   // Ghost device
+    const pW = 1.18, pH = 2.48, pD = 0.09;   // iPhone (slightly larger, sits behind)
+    const cornerR = 0.22;  // rounded corner radius for both
 
-    // Subtle edge bevel — thin slightly-darker outline box
-    const edgeGeo = new THREE.EdgesGeometry(bodyGeo);
-    const edgeMat = new THREE.LineBasicMaterial({ color: 0xc8c2b8, linewidth: 1 });
-    const edges = new THREE.LineSegments(edgeGeo, edgeMat);
-    body.add(edges);
-
-    // ── LED on top face ──
-    const ledGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.025, 16);
-    const ledMat = new THREE.MeshStandardMaterial({
-      color: 0x44ee88, emissive: 0x22cc66, emissiveIntensity: 1.2,
-      roughness: 0.2, metalness: 0.1,
-    });
-    const led = new THREE.Mesh(ledGeo, ledMat);
-    led.position.set(0.28, bH / 2 + 0.013, -0.2);
-    scene.add(led);
-
-    // LED glow point light
-    const ledLight = new THREE.PointLight(0x44ee88, 0.6, 0.6);
-    ledLight.position.copy(led.position);
-    scene.add(ledLight);
-
-    // ── Button on front face ──
-    const btnGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.02, 24);
-    const btnMat = new THREE.MeshStandardMaterial({ color: 0xd8d2ca, roughness: 0.6, metalness: 0.05 });
-    const btn = new THREE.Mesh(btnGeo, btnMat);
-    btn.rotation.x = Math.PI / 2;
-    btn.position.set(0, 0, bD / 2 + 0.011);
-    scene.add(btn);
-
-    // ── USB-C ports on left and right faces ──
-    function makeUsbPort(side) {
-      const group = new THREE.Group();
-      // Outer shell
-      const outerGeo = new THREE.BoxGeometry(0.02, 0.07, 0.13);
-      const outerMat = new THREE.MeshStandardMaterial({ color: 0xa8a29a, roughness: 0.4, metalness: 0.5 });
-      const outer = new THREE.Mesh(outerGeo, outerMat);
-      // Inner recess (dark)
-      const innerGeo = new THREE.BoxGeometry(0.022, 0.045, 0.11);
-      const innerMat = new THREE.MeshStandardMaterial({ color: 0x3a3530, roughness: 0.9, metalness: 0.0 });
-      const inner = new THREE.Mesh(innerGeo, innerMat);
-      inner.position.x = side * 0.002;
-      group.add(outer);
-      group.add(inner);
-      return group;
+    // Helper: rounded-rect shape
+    function roundedRectShape(w, h, r) {
+      const s = new THREE.Shape();
+      const hw = w / 2, hh = h / 2;
+      s.moveTo(-hw + r, -hh);
+      s.lineTo( hw - r, -hh);
+      s.quadraticCurveTo( hw, -hh,  hw, -hh + r);
+      s.lineTo( hw,  hh - r);
+      s.quadraticCurveTo( hw,  hh,  hw - r,  hh);
+      s.lineTo(-hw + r,  hh);
+      s.quadraticCurveTo(-hw,  hh, -hw,  hh - r);
+      s.lineTo(-hw, -hh + r);
+      s.quadraticCurveTo(-hw, -hh, -hw + r, -hh);
+      return s;
     }
 
-    const portL = makeUsbPort(-1);
-    portL.position.set(-bW / 2 - 0.01, -0.3, 0.1);
-    scene.add(portL);
+    // ExtrudeGeometry for rounded slab
+    function makeRoundedSlab(w, h, d, r) {
+      const shape = roundedRectShape(w, h, r);
+      const geo = new THREE.ExtrudeGeometry(shape, {
+        depth: d,
+        bevelEnabled: true,
+        bevelThickness: 0.018,
+        bevelSize: 0.018,
+        bevelSegments: 4,
+      });
+      geo.translate(0, 0, -d / 2);  // center on Z
+      return geo;
+    }
 
-    const portR = makeUsbPort(1);
-    portR.position.set(bW / 2 + 0.01, -0.3, 0.1);
-    scene.add(portR);
+    // ── iPhone body (behind, semi-transparent dark glass) ──
+    const phoneGeo = makeRoundedSlab(pW, pH, pD, cornerR + 0.02);
+    const phoneMat = new THREE.MeshStandardMaterial({
+      color: 0x1a1916,
+      roughness: 0.15,
+      metalness: 0.6,
+      transparent: true,
+      opacity: 0.88,
+    });
+    const phone = new THREE.Mesh(phoneGeo, phoneMat);
+    phone.position.z = -(pD / 2 + gD / 2 + 0.01);  // sit just behind Ghost device
+    phone.castShadow = true;
+    phone.receiveShadow = true;
 
-    // ── Ground shadow plane ──
-    const groundGeo = new THREE.PlaneGeometry(8, 8);
-    const groundMat = new THREE.ShadowMaterial({ opacity: 0.08 });
+    // Phone screen face (front face, lighter)
+    const screenShape = roundedRectShape(pW - 0.06, pH - 0.06, cornerR - 0.02);
+    const screenGeo = new THREE.ShapeGeometry(screenShape);
+    const screenMat = new THREE.MeshStandardMaterial({
+      color: 0x2a2825,
+      roughness: 0.05,
+      metalness: 0.3,
+      transparent: true,
+      opacity: 0.6,
+    });
+    const screen = new THREE.Mesh(screenGeo, screenMat);
+    screen.position.z = -(pD / 2 + gD / 2 + 0.01) + pD / 2 + 0.001;
+    screen.rotation.z = 0;
+
+    // Dynamic Island pill on phone
+    const diGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.18, 24);
+    diGeo.rotateZ(Math.PI / 2);
+    const diMat = new THREE.MeshStandardMaterial({ color: 0x0a0908, roughness: 0.2, metalness: 0.1 });
+    const di = new THREE.Mesh(diGeo, diMat);
+    di.position.set(0, pH / 2 - 0.18, screen.position.z + 0.001);
+
+    // Phone camera bump (on the back of the phone = behind ghost device — invisible but let's add subtle edge)
+    // omitted for cleanliness
+
+    // ── Ghost Device body (front, warm off-white matte) ──
+    const ghostGeo = makeRoundedSlab(gW, gH, gD, cornerR);
+    const ghostMat = new THREE.MeshStandardMaterial({
+      color: 0xede9e3,
+      roughness: 0.52,
+      metalness: 0.03,
+    });
+    const ghost = new THREE.Mesh(ghostGeo, ghostMat);
+    ghost.castShadow = true;
+    ghost.receiveShadow = true;
+
+    // Ghost edge lines
+    // (bevel gives natural edges; skip explicit wireframe)
+
+    // ── LED on Ghost — top-right, front face ──
+    const ledGeo = new THREE.CylinderGeometry(0.038, 0.038, 0.022, 20);
+    const ledMat = new THREE.MeshStandardMaterial({
+      color: 0x44ee88, emissive: 0x22cc66, emissiveIntensity: 1.3,
+      roughness: 0.15, metalness: 0.05,
+    });
+    const led = new THREE.Mesh(ledGeo, ledMat);
+    led.rotation.x = Math.PI / 2;
+    led.position.set(gW / 2 - 0.14, gH / 2 - 0.18, gD / 2 + 0.012);
+
+    const ledLight = new THREE.PointLight(0x44ee88, 0.7, 0.8);
+    ledLight.position.copy(led.position);
+
+    // ── Button on right edge of Ghost ──
+    const btnGeo = new THREE.CylinderGeometry(0.048, 0.048, 0.055, 20);
+    const btnMat = new THREE.MeshStandardMaterial({ color: 0xd0cbc3, roughness: 0.55, metalness: 0.06 });
+    const btn = new THREE.Mesh(btnGeo, btnMat);
+    btn.rotation.z = Math.PI / 2;
+    btn.position.set(gW / 2 + 0.015, 0.2, 0);
+
+    // ── USB-C port on bottom edge of Ghost ──
+    function makeUsbC() {
+      const g = new THREE.Group();
+      const outerGeo = new THREE.BoxGeometry(0.16, 0.07, 0.04);
+      const outerMat = new THREE.MeshStandardMaterial({ color: 0xa8a29a, roughness: 0.35, metalness: 0.55 });
+      g.add(new THREE.Mesh(outerGeo, outerMat));
+      const innerGeo = new THREE.BoxGeometry(0.13, 0.044, 0.042);
+      const innerMat = new THREE.MeshStandardMaterial({ color: 0x2a2620, roughness: 0.9 });
+      g.add(new THREE.Mesh(innerGeo, innerMat));
+      return g;
+    }
+    const usbPort = makeUsbC();
+    usbPort.position.set(0, -gH / 2 - 0.02, 0);
+    usbPort.rotation.x = Math.PI / 2;
+
+    // ── Ghost wordmark on front face ──
+    const wmTex = (() => {
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 1024;
+      const ctx = c.getContext('2d');
+      ctx.clearRect(0, 0, 512, 1024);
+      ctx.fillStyle = 'rgba(140,134,126,0.55)';
+      ctx.font = '500 36px serif';
+      ctx.letterSpacing = '8px';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('GHOST', 256, 512);
+      return new THREE.CanvasTexture(c);
+    })();
+    const wmGeo = new THREE.PlaneGeometry(gW * 0.72, gH * 0.72);
+    const wmMat = new THREE.MeshStandardMaterial({ map: wmTex, transparent: true, roughness: 0.5, depthWrite: false });
+    const wm = new THREE.Mesh(wmGeo, wmMat);
+    wm.position.set(0, 0, gD / 2 + 0.002);
+
+    // ── Attachment clips — subtle raised ridges on back of Ghost (grip onto phone) ──
+    function makeClip(yPos) {
+      const g = new THREE.Group();
+      const clipGeo = new THREE.BoxGeometry(gW + 0.06, 0.06, 0.05);
+      const clipMat = new THREE.MeshStandardMaterial({ color: 0xd5d0c8, roughness: 0.6, metalness: 0.04 });
+      const c = new THREE.Mesh(clipGeo, clipMat);
+      g.add(c);
+      const edgeGeo2 = new THREE.EdgesGeometry(clipGeo);
+      g.add(new THREE.LineSegments(edgeGeo2, new THREE.LineBasicMaterial({ color: 0xb8b2aa })));
+      g.position.set(0, yPos, -gD / 2 - 0.025);
+      return g;
+    }
+    const clipTop = makeClip(gH / 2 - 0.28);
+    const clipBot = makeClip(-gH / 2 + 0.28);
+
+    // ── Ground shadow ──
+    const groundGeo = new THREE.PlaneGeometry(12, 12);
+    const groundMat = new THREE.ShadowMaterial({ opacity: 0.07 });
     const ground = new THREE.Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -bH / 2 - 0.01;
+    ground.position.y = -pH / 2 - 0.5;
     ground.receiveShadow = true;
     scene.add(ground);
 
-    // ── Ghost wordmark as texture on top ──
-    const wordmarkTex = (() => {
-      const cvs = document.createElement('canvas');
-      cvs.width = 256; cvs.height = 256;
-      const ctx = cvs.getContext('2d');
-      ctx.clearRect(0, 0, 256, 256);
-      ctx.fillStyle = 'rgba(160,154,146,0.75)';
-      ctx.font = '600 28px serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('G H O S T', 128, 128);
-      return new THREE.CanvasTexture(cvs);
-    })();
-    const decalGeo = new THREE.PlaneGeometry(0.7, 0.7);
-    const decalMat = new THREE.MeshStandardMaterial({ map: wordmarkTex, transparent: true, roughness: 0.55, depthWrite: false });
-    const decal = new THREE.Mesh(decalGeo, decalMat);
-    decal.rotation.x = -Math.PI / 2;
-    decal.position.set(-0.05, bH / 2 + 0.001, 0.05);
-
-    // ── Mouse drag orbit ──
-    let isDragging = false, prevX = 0, prevY = 0;
-    let rotX = 0.3, rotY = -0.5;
+    // ── Assemble into pivot for rotation ──
     const pivot = new THREE.Group();
+    [phone, screen, di, ghost, led, ledLight, btn, usbPort, wm, clipTop, clipBot].forEach(o => pivot.add(o));
     scene.add(pivot);
-    // Add all world objects into pivot
-    [body, led, ledLight, btn, portL, portR, decal].forEach(o => pivot.add(o));
+
+    // ── Orbit controls (manual) ──
+    let isDragging = false, prevX = 0, prevY = 0;
+    let rotX = 0.18, rotY = 0.35;
 
     canvas.addEventListener('mousedown', e => { isDragging = true; prevX = e.clientX; prevY = e.clientY; canvas.style.cursor = 'grabbing'; });
     window.addEventListener('mouseup', () => { isDragging = false; canvas.style.cursor = 'grab'; });
     window.addEventListener('mousemove', e => {
       if (!isDragging) return;
-      rotY += (e.clientX - prevX) * 0.012;
-      rotX += (e.clientY - prevY) * 0.012;
-      rotX = Math.max(-0.8, Math.min(0.9, rotX));
+      rotY += (e.clientX - prevX) * 0.011;
+      rotX += (e.clientY - prevY) * 0.011;
+      rotX = Math.max(-0.7, Math.min(0.75, rotX));
       prevX = e.clientX; prevY = e.clientY;
     });
     canvas.addEventListener('touchstart', e => {
       isDragging = true;
-      prevX = e.touches[0].clientX;
-      prevY = e.touches[0].clientY;
+      prevX = e.touches[0].clientX; prevY = e.touches[0].clientY;
     }, { passive: true });
     window.addEventListener('touchend', () => isDragging = false);
-    // Non-passive so we can preventDefault and block page scroll during rotate
     canvas.addEventListener('touchmove', e => {
       if (!isDragging) return;
       e.preventDefault();
-      rotY += (e.touches[0].clientX - prevX) * 0.016;
-      rotX += (e.touches[0].clientY - prevY) * 0.016;
-      rotX = Math.max(-0.8, Math.min(0.9, rotX));
-      prevX = e.touches[0].clientX;
-      prevY = e.touches[0].clientY;
+      rotY += (e.touches[0].clientX - prevX) * 0.015;
+      rotX += (e.touches[0].clientY - prevY) * 0.015;
+      rotX = Math.max(-0.7, Math.min(0.75, rotX));
+      prevX = e.touches[0].clientX; prevY = e.touches[0].clientY;
     }, { passive: false });
 
-    // ── LED pulse animation ──
+    // ── Animate ──
     let t = 0;
     function animate() {
       requestAnimationFrame(animate);
-      t += 0.03;
-      // Gentle auto-rotate when not dragging
-      if (!isDragging) rotY += 0.004;
+      t += 0.025;
+      if (!isDragging) rotY += 0.003;
       pivot.rotation.x = rotX;
       pivot.rotation.y = rotY;
-      // LED breathe
-      const pulse = 0.7 + 0.5 * Math.sin(t);
+      const pulse = 0.65 + 0.55 * Math.sin(t);
       ledMat.emissiveIntensity = pulse;
-      ledLight.intensity = pulse * 0.5;
+      ledLight.intensity = pulse * 0.6;
       renderer.render(scene, camera);
     }
     animate();
